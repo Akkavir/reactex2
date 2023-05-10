@@ -116,7 +116,7 @@ module.exports = function (app) {
             }
             return b.score - a.score;
         });
-        fs.writeFileSync('./database/highscores.json', JSON.stringify(highScoresDB));
+        fs.writeFileSync(`./database/highscores_${game}.json`, JSON.stringify(highScoresDB));
 
         // #swagger.responses[200] = { description: 'Dodano wynik' }
         return res.status(200).json({
