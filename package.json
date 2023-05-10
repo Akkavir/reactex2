@@ -4,7 +4,13 @@
   "description": "highscore manager",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js",
+    "swagger-autogen": "node swagger.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "swagger-autogen": "^2.23.1",
+    "swagger-ui-express": "^4.1.4"
   },
   "author": "ja",
   "license": "MIT"

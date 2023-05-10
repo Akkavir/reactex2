@@ -1,0 +1,111 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Reset GameDev HighScore Manager",
+    "description": "podobno działa"
+  },
+  "host": "10.10.60.179:3000",
+  "basePath": "/",
+  "tags": [
+    {
+      "name": "HighScore",
+      "description": ""
+    }
+  ],
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "consumes": [
+    "multipart/form-data"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/game": {
+      "get": {
+        "tags": [
+          "HighScore"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "game",
+            "in": "query",
+            "description": "Nazwa gry",
+            "type": "string"
+          },
+          {
+            "name": "score",
+            "in": "query",
+            "description": "Wynik gracza",
+            "type": "int"
+          },
+          {
+            "name": "vcode",
+            "in": "query",
+            "description": "Dokładna data ukończenia gry",
+            "type": "int"
+          },
+          {
+            "name": "verify",
+            "in": "query",
+            "description": "Walidacja wyniku",
+            "type": "int"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dodano wynik"
+          },
+          "422": {
+            "description": "Błąd walidacji!"
+          }
+        }
+      }
+    },
+    "/score": {
+      "get": {
+        "tags": [
+          "HighScore"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Limit (max 1000)",
+            "type": "int"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Offset",
+            "type": "int"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pobrano wyniki"
+          }
+        }
+      }
+    },
+    "/": {
+      "get": {
+        "tags": [
+          "HighScore"
+        ],
+        "description": "",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Witaj!"
+          }
+        }
+      }
+    }
+  }
+}
