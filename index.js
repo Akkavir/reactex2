@@ -7,7 +7,7 @@ const fs = require('fs');
 http.createServer(app).listen(3000)
 console.log("Listening at:// port:%s (HTTP)", 3000)
 
-app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerFile))
+app.use('/napewnoniedokumentacja', swaggerUi.serve, swaggerUi.setup(swaggerFile))
 
 if (!fs.existsSync('./database/gamelist.json')) {
     fs.writeFileSync('./database/gamelist.json', '[]');
