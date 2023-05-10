@@ -40,6 +40,8 @@ module.exports = function (app) {
             type: 'int'
         } */
 
+        console.log(`Received request from ${req.ip} to ${req.originalUrl} via ${req.method} method`);
+
         // #swagger.responses[422] = { description: 'Błąd walidacji!' }
         if(!req.query.game || !req.query.score || !req.query.vcode || !req.query.verify)
             return res.status(422).json({
@@ -55,13 +57,16 @@ module.exports = function (app) {
             });
 
         const valid_games = JSON.parse(fs.readFileSync('./database/gamelist.json'));
+        let _name = null;
         valid_games.forEach(obj => {
-            if (obj.id !== req.query.game) {
-              return res.status(422).json({
-                "error": "Invalid game name"
-              });
+            if (obj.id === req.query.game) {
+                _name = obj.id;
             }
-          });
+        });
+        if(_name == null)
+            return res.status(422).json({
+                "error": "Invalid game name"
+                });
 
         if(!isNumeric(req.query.score) || !isNumeric(req.query.vcode) || !isNumeric(req.query.verify))
             return res.status(422).json({
@@ -141,6 +146,8 @@ module.exports = function (app) {
             type: 'int'
         } */
 
+        console.log(`Received request from ${req.ip} to ${req.originalUrl} via ${req.method} method`);
+
         // #swagger.responses[422] = { description: 'Błąd walidacji!' }
         if(!req.query.game)
         return res.status(422).json({
@@ -154,13 +161,16 @@ module.exports = function (app) {
             });
 
         const valid_games = JSON.parse(fs.readFileSync('./database/gamelist.json'));
+        let _name = null;
         valid_games.forEach(obj => {
-            if (obj.id !== req.query.game) {
-                return res.status(422).json({
+            if (obj.id === req.query.game) {
+                _name = obj.id;
+            }
+        });
+        if(_name == null)
+            return res.status(422).json({
                 "error": "Invalid game name"
                 });
-            }
-            });
 
         if (!req.query.limit) req.query.limit = 1000;
         if(req.query.limit < 0 || req.query.limit > 1000) return res.json({
@@ -181,53 +191,28 @@ module.exports = function (app) {
         return res.status(200).json(highScoresDB);
     });
 
-    app.get('/score-live', function (req, res) {
+    app.get('/score-live/reset-adventure', function (req, res) {
         // #swagger.tags = ['HighScore']
 
-        /* #swagger.parameters['game'] = {
-	        in: 'query',
-            description: 'Nazwa gry',
-            type: 'string'
-        } */
-        
+        console.log(`Received request from ${req.ip} to ${req.originalUrl} via ${req.method} method`);
+
         res.setHeader('Cache-Control', 'no-cache');
         res.setHeader('Content-Type', 'text/event-stream');
         res.setHeader('Access-Control-Allow-Origin', '*');
         res.setHeader('Connection', 'keep-alive');
         res.flushHeaders();
 
-        // #swagger.responses[422] = { description: 'Błąd walidacji!' }
-        if(!req.query.game)
-        return res.status(422).json({
-            "error": "game not provided"
-        });
-    
-        //check if game is a two letter string
-        if (req.query.game.length != 2)
-            return res.status(422).json({
-                "error": "game must be a two letter string"
-            });
-
-        const valid_games = JSON.parse(fs.readFileSync('./database/gamelist.json'));
-        valid_games.forEach(obj => {
-            if (obj.id !== req.query.game) {
-                return res.status(422).json({
-                "error": "Invalid game name"
-                });
-            }
-            });
-
         let old_data = null;
 
         // #swagger.responses[200] = { description: 'live data' }
         let interValID = setInterval(() => {
-            let new_data = JSON.parse(fs.readFileSync(`./database/highscores_${game}.json`));
+            let new_data = JSON.parse(fs.readFileSync(`./database/highscores_RA.json`));
 
             if (JSON.stringify(old_data !== null ? old_data : "[]") != JSON.stringify(new_data)) {
                 console.log(`Sending new data to ${req.ip}`);
                 if (old_data == null) {
                     old_data = new_data;
-                    res.write(`data: ${JSON.stringify(new_data)}\n`);
+                    res.write(`highscores: ${JSON.stringify(new_data)}\n`);
                 } else {
                     let to_send = [];
                     for(let i = 0; i < new_data.length; i++) {
@@ -238,7 +223,7 @@ module.exports = function (app) {
                     }
                     old_data = new_data;
                     if (to_send.length > 0) {
-                        res.write(`data: ${JSON.stringify(to_send)}\n`);
+                        res.write(`highscores: ${JSON.stringify(to_send)}\n`);
                     }
                 }
             }

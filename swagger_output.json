@@ -77,6 +77,12 @@
         "description": "",
         "parameters": [
           {
+            "name": "game",
+            "in": "query",
+            "description": "Nazwa gry",
+            "type": "string"
+          },
+          {
             "name": "limit",
             "in": "query",
             "description": "Limit (max 1000)",
@@ -92,11 +98,14 @@
         "responses": {
           "200": {
             "description": "Pobrano wyniki"
+          },
+          "422": {
+            "description": "Błąd walidacji!"
           }
         }
       }
     },
-    "/score-live": {
+    "/score-live/reset-adventure": {
       "get": {
         "tags": [
           "HighScore"
