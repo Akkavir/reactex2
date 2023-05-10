@@ -54,10 +54,14 @@ module.exports = function (app) {
                 "error": "game must be a two letter string"
             });
 
-        if(["ra"].indexOf(req.query.game?.toLowerCase()) == -1)
-            return res.status(422).json({
-                "error": "game name not valid"
-            });
+        const valid_games = JSON.parse(fs.readFileSync('./database/gamelist.json'));
+        valid_games.forEach(obj => {
+            if (obj.id !== req.query.game) {
+              return res.status(422).json({
+                "error": "Invalid game name"
+              });
+            }
+          });
 
         if(!isNumeric(req.query.score) || !isNumeric(req.query.vcode) || !isNumeric(req.query.verify))
             return res.status(422).json({
@@ -75,7 +79,7 @@ module.exports = function (app) {
             req.query.score > 999999999 ||
             req.query.vcode > 999999999 ||
             req.query.verify > 999)
-            return res.status(422).json({
+            return res.status(400).json({
                 "error": "score, vcode or verify didn't pass validation"
             });
         
@@ -84,21 +88,22 @@ module.exports = function (app) {
         vcode = parseInt(vcode);
         verify = parseInt(verify);
 
-        //check if score is valid
+        // #swagger.responses[400] = { description: 'Niepoprawne dane' }
         if (!verifyScore(score, vcode, verify))
-            return res.status(422).json({
+            return res.status(400).json({
                 "error": "score, vcode or verify didn't pass validation"
             });
 
         highScoresDB = JSON.parse(fs.readFileSync('./database/highscores.json'));
         const created_at = new Date();
         const date_string = `${addZero(created_at.getDate())}.${addZero(created_at.getMonth() + 1)}.${created_at.getFullYear()} ${addZero(created_at.getHours())}:${addZero(created_at.getMinutes())}:${addZero(created_at.getSeconds())}`;
-        highScoresDB.push({
+        const toAdd = {
             created_at: date_string,
             game,
             score,
             vcode
-        });
+        };
+        highScoresDB.push(toAdd);
         //sort by score and vcode (score DESC, vcode ASC)
         highScoresDB.sort((a, b) => {
             if (a.score == b.score) {
@@ -110,7 +115,8 @@ module.exports = function (app) {
 
         // #swagger.responses[200] = { description: 'Dodano wynik' }
         return res.status(200).json({
-            response: "Success!"
+            response: "Success!",
+            sent_data: toAdd
         });
     });
 	

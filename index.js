@@ -13,4 +13,8 @@ if (!fs.existsSync('./database/highscores.json')) {
     fs.writeFileSync('./database/highscores.json', '[]');
 }
 
+if (!fs.existsSync('./database/gamelist.json')) {
+    fs.writeFileSync('./database/gamelist.json', '[]');
+}
+
 require('./endpoints')(app)

@@ -60,6 +60,9 @@
           "200": {
             "description": "Dodano wynik"
           },
+          "400": {
+            "description": "Niepoprawne dane"
+          },
           "422": {
             "description": "Błąd walidacji!"
           }
