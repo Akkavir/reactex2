@@ -9,7 +9,7 @@ const doc = {
         title: "Reset GameDev HighScore Manager",
         description: "podobno działa"
     },
-    host: "10.10.60.179:3000",
+    host: "10.10.60.179:3000", //change here ip
     basePath: "/",
     schemes: ['http', 'https'],
     consumes: ['multipart/form-data'],
