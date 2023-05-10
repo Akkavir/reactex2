@@ -94,7 +94,7 @@ module.exports = function (app) {
                 "error": "score, vcode or verify didn't pass validation"
             });
 
-        highScoresDB = JSON.parse(fs.readFileSync('./database/highscores.json'));
+        highScoresDB = JSON.parse(fs.readFileSync(`./database/highscores_${game}.json`));
         const created_at = new Date();
         const date_string = `${addZero(created_at.getDate())}.${addZero(created_at.getMonth() + 1)}.${created_at.getFullYear()} ${addZero(created_at.getHours())}:${addZero(created_at.getMinutes())}:${addZero(created_at.getSeconds())}`;
         const toAdd = {
@@ -123,6 +123,12 @@ module.exports = function (app) {
     app.get('/score', function (req, res) {
         // #swagger.tags = ['HighScore']
 
+        /* #swagger.parameters['game'] = {
+	        in: 'query',
+            description: 'Nazwa gry',
+            type: 'string'
+        } */
+
         /* #swagger.parameters['limit'] = {
 	        in: 'query',
             description: 'Limit (max 1000)',
@@ -135,17 +141,40 @@ module.exports = function (app) {
             type: 'int'
         } */
 
+        // #swagger.responses[422] = { description: 'Błąd walidacji!' }
+        if(!req.query.game)
+        return res.status(422).json({
+            "error": "game not provided"
+        });
+    
+        //check if game is a two letter string
+        if (req.query.game.length != 2)
+            return res.status(422).json({
+                "error": "game must be a two letter string"
+            });
+
+        const valid_games = JSON.parse(fs.readFileSync('./database/gamelist.json'));
+        valid_games.forEach(obj => {
+            if (obj.id !== req.query.game) {
+                return res.status(422).json({
+                "error": "Invalid game name"
+                });
+            }
+            });
+
         if (!req.query.limit) req.query.limit = 1000;
         if(req.query.limit < 0 || req.query.limit > 1000) return res.json({
             "error": "limit must be between 0 and 1000"
         }, 422);
+
+        const game = req.query.game;
 
         if (!req.query.offset) req.query.offset = 0;
         if(req.query.offset < 0) return res.json({
             "error": "offset must be greater than 0"
         }, 422);
 
-        highScoresDB = JSON.parse(fs.readFileSync('./database/highscores.json'));
+        highScoresDB = JSON.parse(fs.readFileSync(`./database/highscores_${game}.json`));
         highScoresDB = highScoresDB.slice(req.query.offset, req.query.offset + req.query.limit);
 
         // #swagger.responses[200] = { description: 'Pobrano wyniki' }
@@ -154,17 +183,45 @@ module.exports = function (app) {
 
     app.get('/score-live', function (req, res) {
         // #swagger.tags = ['HighScore']
+
+        /* #swagger.parameters['game'] = {
+	        in: 'query',
+            description: 'Nazwa gry',
+            type: 'string'
+        } */
+        
         res.setHeader('Cache-Control', 'no-cache');
         res.setHeader('Content-Type', 'text/event-stream');
         res.setHeader('Access-Control-Allow-Origin', '*');
         res.setHeader('Connection', 'keep-alive');
         res.flushHeaders();
 
+        // #swagger.responses[422] = { description: 'Błąd walidacji!' }
+        if(!req.query.game)
+        return res.status(422).json({
+            "error": "game not provided"
+        });
+    
+        //check if game is a two letter string
+        if (req.query.game.length != 2)
+            return res.status(422).json({
+                "error": "game must be a two letter string"
+            });
+
+        const valid_games = JSON.parse(fs.readFileSync('./database/gamelist.json'));
+        valid_games.forEach(obj => {
+            if (obj.id !== req.query.game) {
+                return res.status(422).json({
+                "error": "Invalid game name"
+                });
+            }
+            });
+
         let old_data = null;
 
         // #swagger.responses[200] = { description: 'live data' }
         let interValID = setInterval(() => {
-            let new_data = JSON.parse(fs.readFileSync('./database/highscores.json'));
+            let new_data = JSON.parse(fs.readFileSync(`./database/highscores_${game}.json`));
 
             if (JSON.stringify(old_data !== null ? old_data : "[]") != JSON.stringify(new_data)) {
                 console.log(`Sending new data to ${req.ip}`);

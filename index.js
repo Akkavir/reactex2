@@ -9,12 +9,15 @@ console.log("Listening at:// port:%s (HTTP)", 3000)
 
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerFile))
 
-if (!fs.existsSync('./database/highscores.json')) {
-    fs.writeFileSync('./database/highscores.json', '[]');
-}
-
 if (!fs.existsSync('./database/gamelist.json')) {
     fs.writeFileSync('./database/gamelist.json', '[]');
 }
+
+const game_list = JSON.parse(fs.readFileSync('./database/gamelist.json'));
+game_list.map(obj => {
+    if (!fs.existsSync(`./database/highscores_${obj.id}.json`)) {
+        fs.writeFileSync(`./database/highscores_${obj.id}.json`, '[]');
+    }
+});
 
 require('./endpoints')(app)
