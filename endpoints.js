@@ -40,6 +40,8 @@ module.exports = function (app) {
             type: 'int'
         } */
 
+        res.header("Access-Control-Allow-Origin", "*");
+
         console.log(`Received request from ${req.ip} to ${req.originalUrl} via ${req.method} method`);
 
         // #swagger.responses[422] = { description: 'Błąd walidacji!' }
@@ -47,8 +49,6 @@ module.exports = function (app) {
             return res.status(422).json({
                 "error": "game, score, vcode or verify not provided"
             });
-
-        console.log(`Received request from ${req.ip}: (game: ${req.query.game}, score: ${req.query.score}, vcode: ${req.query.vcode}, verify: ${req.query.verify})`);
 
         //check if game is a two letter string
         if (req.query.game.length != 2)
@@ -145,6 +145,8 @@ module.exports = function (app) {
             description: 'Offset',
             type: 'int'
         } */
+
+        res.header("Access-Control-Allow-Origin", "*");
 
         console.log(`Received request from ${req.ip} to ${req.originalUrl} via ${req.method} method`);
 
