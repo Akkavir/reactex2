@@ -93,6 +93,20 @@
         }
       }
     },
+    "/score-live": {
+      "get": {
+        "tags": [
+          "HighScore"
+        ],
+        "description": "",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "live data"
+          }
+        }
+      }
+    },
     "/": {
       "get": {
         "tags": [

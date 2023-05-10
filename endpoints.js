@@ -46,9 +46,7 @@ module.exports = function (app) {
                 "error": "game, score, vcode or verify not provided"
             });
 
-        console.log(```
-            Received request from ${req.ip}: (game: ${req.query.game}, score: ${req.query.score}, vcode: ${req.query.vcode}, verify: ${req.query.verify})
-        ```);
+        console.log(`Received request from ${req.ip}: (game: ${req.query.game}, score: ${req.query.score}, vcode: ${req.query.vcode}, verify: ${req.query.verify})`);
 
         //check if game is a two letter string
         if (req.query.game.length != 2)
@@ -148,12 +146,58 @@ module.exports = function (app) {
         return res.status(200).json(highScoresDB);
     });
 
+    app.get('/score-live', function (req, res) {
+        // #swagger.tags = ['HighScore']
+        res.setHeader('Cache-Control', 'no-cache');
+        res.setHeader('Content-Type', 'text/event-stream');
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Connection', 'keep-alive');
+        res.flushHeaders();
+
+        let old_data = null;
+
+        // #swagger.responses[200] = { description: 'live data' }
+        let interValID = setInterval(() => {
+            let new_data = JSON.parse(fs.readFileSync('./database/highscores.json'));
+
+            if (JSON.stringify(old_data !== null ? old_data : "[]") != JSON.stringify(new_data)) {
+                console.log(`Sending new data to ${req.ip}`);
+                if (old_data == null) {
+                    old_data = new_data;
+                    res.write(`data: ${JSON.stringify(new_data)}\n`);
+                } else {
+                    let to_send = [];
+                    for(let i = 0; i < new_data.length; i++) {
+                        //check if not in old_data
+                        if(old_data != null && old_data.filter(e => e.created_at == new_data[i].created_at && e.game == new_data[i].game && e.score == new_data[i].score && e.vcode == new_data[i].vcode).length == 0) {
+                            to_send.push(new_data[i]);
+                        }
+                    }
+                    old_data = new_data;
+                    if (to_send.length > 0) {
+                        res.write(`data: ${JSON.stringify(to_send)}\n`);
+                    }
+                }
+            }
+        }, 1000);
+
+        // If client closes connection, stop sending events
+        res.on('close', () => {
+            console.log('client dropped me :c');
+            clearInterval(interValID);
+            res.end();
+        });
+    });
+
     app.get('/', function (req, res) {
         // #swagger.tags = ['HighScore']
+        const created_at = new Date();
+        const date_string = `${addZero(created_at.getDate())}.${addZero(created_at.getMonth() + 1)}.${created_at.getFullYear()} ${addZero(created_at.getHours())}:${addZero(created_at.getMinutes())}:${addZero(created_at.getSeconds())}`;
 
         // #swagger.responses[200] = { description: 'Witaj!' }
         return res.status(200).json({
-            response: "🗿"
+            response: "🗿",
+            created_at: date_string,
         });
     });
 }
