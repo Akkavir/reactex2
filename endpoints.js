@@ -193,6 +193,50 @@ module.exports = function (app) {
         return res.status(200).json(highScoresDB);
     });
 
+    app.get('/clear/emergency', function (req, res) {
+        // #swagger.tags = ['HighScore']
+
+        /* #swagger.parameters['game'] = {
+	        in: 'query',
+            description: 'Nazwa gry',
+            type: 'string'
+        } */
+
+        res.header("Access-Control-Allow-Origin", "*");
+
+        console.log(`Received request from ${req.ip} to ${req.originalUrl} via ${req.method} method`);
+
+        // #swagger.responses[422] = { description: 'Błąd walidacji!' }
+        if(!req.query.game)
+            return res.status(422).json({
+                "error": "game, score, vcode or verify not provided"
+            });
+
+        //check if game is a two letter string
+        if (req.query.game.length != 2)
+            return res.status(422).json({
+                "error": "game must be a two letter string"
+            });
+
+        const valid_games = JSON.parse(fs.readFileSync('./database/gamelist.json'));
+        let _name = null;
+        valid_games.forEach(obj => {
+            if (obj.id === req.query.game) {
+                _name = obj.id;
+            }
+        });
+        if(_name == null)
+            return res.status(422).json({
+                "error": "Invalid game name"
+                });
+
+        fs.writeFileSync(`./database/highscores_${game}.json`, JSON.stringify([]));
+
+
+        // #swagger.responses[200] = { description: 'Wyczyszczono wyniki' }
+        return res.status(200).json([]);
+    });
+
     app.get('/score-live/reset-adventure', function (req, res) {
         // #swagger.tags = ['HighScore']
 
