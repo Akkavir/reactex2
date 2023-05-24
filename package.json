@@ -1,0 +1,18 @@
+{
+  "name": "gameserv",
+  "version": "2.0.0",
+  "description": "highscore manager",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "swagger-autogen": "node swagger.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "express-rate-limit": "^6.7.0",
+    "swagger-autogen": "^2.23.1",
+    "swagger-ui-express": "^4.1.4"
+  },
+  "author": "ja",
+  "license": "MIT"
+}
